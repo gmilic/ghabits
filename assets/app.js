@@ -124,17 +124,6 @@ const weeklySatisfied = (habit, weekKey) => {
   return total >= target;
 };
 
-const scoreFor = (habit) => {
-  if (habit.schedule_type === "times_per_week") {
-    const weeks = [...new Set(state.dates.map(getWeekKey))].slice(0, 6);
-    const done = weeks.filter((week) => weeklySatisfied(habit, week)).length;
-    return Math.round((done / Math.max(weeks.length, 1)) * 100);
-  }
-  const dueDates = state.dates.slice(0, 30).filter((date) => isDue(habit, date));
-  const done = dueDates.filter((date) => isSatisfied(habit, date)).length;
-  return Math.round((done / Math.max(dueDates.length, 1)) * 100);
-};
-
 const streakFor = (habit) => {
   if (habit.schedule_type === "times_per_week") {
     const weeks = [...new Set(state.dates.map(getWeekKey))];
@@ -201,22 +190,28 @@ const render = () => {
     row.className = "habit-row";
     row.style.setProperty("--habit-color", habit.color);
 
+    const title = document.createElement("button");
+    title.className = "habit-edit";
+    title.type = "button";
+    title.setAttribute("aria-label", `Edit ${habit.name}`);
+    title.innerHTML = `
+      <span class="color-dot"></span>
+      <strong>${escapeHtml(habit.name)}</strong>
+    `;
+    title.addEventListener("click", () => openHabitDialog(habit));
+
     const meta = document.createElement("div");
     meta.className = "habit-meta";
+    const unit = habit.type === "measurable" && habit.unit
+      ? `<span>unit <b>${escapeHtml(habit.unit)}</b></span>`
+      : "";
     meta.innerHTML = `
-      <button class="habit-edit" type="button" aria-label="Edit ${escapeHtml(habit.name)}">
-        <span class="color-dot"></span>
-        <span>
-          <strong>${escapeHtml(habit.name)}</strong>
-          <small>${escapeHtml(scheduleLabel(habit))}</small>
-        </span>
-      </button>
+      <small>${escapeHtml(scheduleLabel(habit))}</small>
       <div class="habit-stats">
         <span><b>${streakFor(habit)}</b> streak</span>
-        <span><b>${scoreFor(habit)}%</b> score</span>
+        ${unit}
       </div>
     `;
-    meta.querySelector(".habit-edit").addEventListener("click", () => openHabitDialog(habit));
 
     const grid = document.createElement("div");
     grid.className = "habit-grid";
@@ -236,7 +231,7 @@ const render = () => {
       grid.append(button);
     }
 
-    row.append(meta, grid);
+    row.append(title, meta, grid);
     habitList.append(row);
   }
 };

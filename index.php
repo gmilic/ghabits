@@ -11,6 +11,8 @@ db();
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>GHabits</title>
     <meta name="robots" content="noindex, nofollow">
+    <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+    <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
     <link rel="stylesheet" href="assets/app.css">
 </head>
 <body>
